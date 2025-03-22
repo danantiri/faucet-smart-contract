@@ -10,7 +10,7 @@ contract SepoliaFaucet {
     address public owner;
     
     // Amount to dispense (0.01 ETH)
-    uint256 public DISPENSE_AMOUNT = 0.01 ether;
+    uint256 private DISPENSE_AMOUNT = 0.01 ether;
     
     // Mapping to track when users last received funds
     mapping(address => bool) private requested;
@@ -59,9 +59,9 @@ contract SepoliaFaucet {
     }
     
     // Function to withdraw funds (owner only)
-    function withdraw(uint256 amount) external onlyOwner {
-        require(amount <= address(this).balance, "Insufficient balance");
-        (bool success, ) = payable(owner).call{value: amount}("");
+    function withdraw() external onlyOwner {
+        require(address(this).balance > 0, "Insufficient balance");
+        (bool success, ) = payable(owner).call{value: address(this).balance}("");
         require(success, "Failed to withdraw ETH");
     }
     
