@@ -19,8 +19,8 @@ contract SepoliaFaucet {
     mapping(address => uint256) public lastRequestTime;
     
     // Events
-    event FundsDispensed(address recipient, uint256 amount, uint256 timestamp);
-    event FundsDeposited(address depositor, uint256 amount, uint256 timestamp);
+    event FundsDispensed(address recipient, uint256 amount);
+    event FundsDeposited(address depositor, uint256 amount);
     
     // Constructor
     constructor() {
@@ -41,7 +41,7 @@ contract SepoliaFaucet {
         // Check if the user has waited the required cooldown period
         require(
             block.timestamp >= lastRequestTime[msg.sender] + COOLDOWN_PERIOD || lastRequestTime[msg.sender] == 0,
-            string.concat("You must wait ", remainingTime.toString(), " minutes between requests")
+            string.concat("You must wait ", remainingTime.toString(), " minutes for next request")
         );
         
         // Check if the contract has enough balance
@@ -55,13 +55,13 @@ contract SepoliaFaucet {
         require(success, "Failed to send ETH");
         
         // Emit event
-        emit FundsDispensed(msg.sender, DISPENSE_AMOUNT, block.timestamp);
+        emit FundsDispensed(msg.sender, DISPENSE_AMOUNT);
     }
     
     // Function to fund the faucet
     function deposit() external payable {
         require(msg.value > 0, "Must send ETH to deposit");
-        emit FundsDeposited(msg.sender, msg.value, block.timestamp);
+        emit FundsDeposited(msg.sender, msg.value);
     }
     
     // Function to withdraw funds (owner only)
@@ -79,6 +79,6 @@ contract SepoliaFaucet {
     
     // Fallback function to receive ETH
     receive() external payable {
-        emit FundsDeposited(msg.sender, msg.value, block.timestamp);
+        emit FundsDeposited(msg.sender, msg.value);
     }
 }
