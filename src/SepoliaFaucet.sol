@@ -12,11 +12,8 @@ contract SepoliaFaucet {
     // Amount to dispense (0.01 ETH)
     uint256 public DISPENSE_AMOUNT = 0.01 ether;
     
-    // Cooldown period (1 day in seconds)
-    uint256 public constant COOLDOWN_PERIOD = 1 days;
-    
     // Mapping to track when users last received funds
-    mapping(address => uint256) public lastRequestTime;
+    mapping(address => bool) private requested;
     
     // Events
     event FundsDispensed(address recipient, uint256 amount);
@@ -35,20 +32,17 @@ contract SepoliaFaucet {
     
     // Function to request funds
     function requestFunds() external {
-        uint256 timeSinceLastRequest = block.timestamp - lastRequestTime[msg.sender];
-        uint256 remainingTime = (COOLDOWN_PERIOD - timeSinceLastRequest) / 60;
-
-        // Check if the user has waited the required cooldown period
+        // Check if the user has requested funds
         require(
-            block.timestamp >= lastRequestTime[msg.sender] + COOLDOWN_PERIOD || lastRequestTime[msg.sender] == 0,
-            string.concat("You must wait ", remainingTime.toString(), " minutes for next request")
+            !requested[msg.sender],
+            "You have already requested funds"
         );
         
         // Check if the contract has enough balance
         require(address(this).balance >= DISPENSE_AMOUNT, "Faucet is empty");
         
-        // Update the last request time
-        lastRequestTime[msg.sender] = block.timestamp;
+        // Update requested
+        requested[msg.sender] = true;
         
         // Send ETH to the requester
         (bool success, ) = payable(msg.sender).call{value: DISPENSE_AMOUNT}("");
