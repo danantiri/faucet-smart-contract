@@ -10,7 +10,7 @@ contract SepoliaFaucet {
     address public owner;
     
     // Amount to dispense (0.01 ETH)
-    uint256 public constant DISPENSE_AMOUNT = 0.01 ether;
+    uint256 public DISPENSE_AMOUNT = 0.01 ether;
     
     // Cooldown period (1 day in seconds)
     uint256 public constant COOLDOWN_PERIOD = 1 days;
@@ -75,6 +75,12 @@ contract SepoliaFaucet {
     function changeOwner(address newOwner) external onlyOwner {
         require(newOwner != address(0), "New owner cannot be the zero address");
         owner = newOwner;
+    }
+
+    // Function to change dispense amount (owner only)
+    function setDispenseAmount(uint256 newAmount) external onlyOwner {
+        require(newAmount > 0, "Dispense amount must be greater than 0");
+        DISPENSE_AMOUNT = newAmount * 1 ether;
     }
     
     // Fallback function to receive ETH
