@@ -31,10 +31,10 @@ contract SepoliaFaucet {
     }
     
     // Function to request funds
-    function requestFunds() external {
+    function requestFunds(address _recipient) external {
         // Check if the user has requested funds
         require(
-            !requested[msg.sender],
+            !requested[_recipient],
             "You have already requested funds"
         );
         
@@ -42,14 +42,14 @@ contract SepoliaFaucet {
         require(address(this).balance >= DISPENSE_AMOUNT, "Faucet is empty");
         
         // Update requested
-        requested[msg.sender] = true;
+        requested[_recipient] = true;
         
         // Send ETH to the requester
-        (bool success, ) = payable(msg.sender).call{value: DISPENSE_AMOUNT}("");
+        (bool success, ) = payable(_recipient).call{value: DISPENSE_AMOUNT}("");
         require(success, "Failed to send ETH");
         
         // Emit event
-        emit FundsDispensed(msg.sender, DISPENSE_AMOUNT);
+        emit FundsDispensed(_recipient, DISPENSE_AMOUNT);
     }
     
     // Function to fund the faucet
